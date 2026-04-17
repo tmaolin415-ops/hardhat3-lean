@@ -11,7 +11,7 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 // 4. 在锁定期内，没有达到目标值，投资人在锁定期后，可以退款
 contract FundMe {
 
-    uint256 constant public MINIMUM_VALUE = 10 * 10 ** 15;
+    uint256 constant public MINIMUM_VALUE = 10 * 10 ** 18;
     mapping (address => uint256) public addressToAmountFunded;
     uint256 public deploymentTimestamp;
     uint256 public lockTime; 
