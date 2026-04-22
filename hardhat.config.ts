@@ -35,6 +35,11 @@ export default defineConfig({
     },
   },
   tasks: [deployFundMe, infactFundMe],
+  test:{
+   mocha: {
+    timeout: 500000
+   }
+  },
   verify: {
     etherscan: {
       // Your API key for Etherscan

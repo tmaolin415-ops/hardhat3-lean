@@ -9,7 +9,7 @@ export default async function(
     taskArgs: InfactTaskArguments,
     hre: HardhatRuntimeEnvironment
 ) {
-    const { ethers,networkHelpers,networkConfig } = await hre.network.connect();
+    const { ethers } = await hre.network.connect();
     const fundMeFactory = await ethers.getContractFactory("FundMe")
     const fundMe = fundMeFactory.attach(taskArgs.addr)
     const [account1, account2]= await ethers.getSigners()

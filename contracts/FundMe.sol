@@ -16,13 +16,15 @@ contract FundMe {
     uint256 public deploymentTimestamp;
     uint256 public lockTime; 
     address private owner;
-    uint256 constant public TARGET = 18 * 10 ** 15;
+    uint256 constant public TARGET = 18 * 10 ** 18;
     bool public ownerFunded;
     AggregatorV3Interface internal dataFeed;
+    address[] funders;
 
     event FundEvent(address  _funder,uint256 _amount);
     event OwnerGetFundEvent(address  _owner,uint256 _amount);
     event ReFundEvent(address  _funder,uint256 _amount);
+    
 
     constructor(uint256 _lockTime ,address _dataFeedAddr) {
         dataFeed = AggregatorV3Interface(_dataFeedAddr);
@@ -31,21 +33,37 @@ contract FundMe {
         owner = msg.sender;
     }
 
+    function reset() external onlyOwner {
+        deploymentTimestamp = block.timestamp;
+        ownerFunded = false;
+        for(uint i=0;i< funders.length;i++) {
+            addressToAmountFunded[funders[i]] = 0;
+        }
+        delete funders;
+        uint256 _balance = address(this).balance;
+        bool success;
+        if(_balance > 0) {
+            (success, )  = payable(msg.sender).call{value: _balance}("");
+            require(success, "transfer tx failed");
+        }
+    }
+
+
     function fund() external payable checkValue checkInTime {
         addressToAmountFunded[msg.sender] += msg.value;
+        funders.push(msg.sender);
         emit FundEvent(msg.sender, msg.value);
     }
 
-    function getFund() external enoughAmount onlyOwner checkOutTime {
-        if(!ownerFunded) {
-            addressToAmountFunded[msg.sender] = 0;
-            ownerFunded=true;
-            bool success;
-            uint256 _balance = address(this).balance;
-            (success, )  = payable(msg.sender).call{value: _balance}("");
-            require(success, "transfer tx failed");
-            emit OwnerGetFundEvent(owner, _balance);
-        }
+    function getFund() external onlyOwner checkOutTime {
+        uint256 _balance = address(this).balance;
+        require(convertEthToUsd(_balance) >= TARGET, "you have not reached the target");
+        addressToAmountFunded[msg.sender] = 0;
+        ownerFunded=true;
+        bool success;
+        (success, )  = payable(msg.sender).call{value: _balance}("");
+        require(success, "transfer tx failed");
+        emit OwnerGetFundEvent(owner, _balance);
     }
 
     function reFund() external notEnoughAmount checkOutTime  {
@@ -55,7 +73,7 @@ contract FundMe {
         bool success;
         (success,) = payable(msg.sender).call{value: _amount}("");
         require(success, "transfer tx failed");
-
+        emit ReFundEvent(msg.sender, _amount);
     }
 
     modifier enoughAmount() {
