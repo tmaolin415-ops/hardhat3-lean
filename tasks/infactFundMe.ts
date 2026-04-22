@@ -18,7 +18,7 @@ export default async function(
     // await getFundTx.wait()
 
 
-    const fundTx = await fundMe.fund({value: 9*10**15})
+    const fundTx = await fundMe.fund({value: ethers.parseEther('0.009')})
     await fundTx.wait()
 
     const providerBalance =  await ethers.provider.getBalance(fundMe.target)
