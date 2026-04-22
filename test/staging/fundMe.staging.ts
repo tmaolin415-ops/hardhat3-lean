@@ -16,7 +16,7 @@ ENV.localChainIds.includes(networkConfig.chainId as number)
                 const resetTx = await fundMe.reset()
                 await resetTx.wait()
             }catch{
-                const deploy = await ignition.deploy(FundMeDeploy, {parameters: {FundMe: {mockV3Addr: ENV.networkConfigs[networkConfig.chainId as keyof typeof ENV.networkConfigs].dataFeedAddr}}})
+                const deploy = await ignition.deploy(FundMeDeploy)
                 fundMe =deploy.fundMe
             }
         })

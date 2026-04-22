@@ -37,7 +37,7 @@ contract FundMe {
         deploymentTimestamp = block.timestamp;
         ownerFunded = false;
         for(uint i=0;i< funders.length;i++) {
-            addressToAmountFunded[funders[i]] = 0;
+            delete addressToAmountFunded[funders[i]];
         }
         delete funders;
         uint256 _balance = address(this).balance;
